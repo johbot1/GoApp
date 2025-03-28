@@ -4,10 +4,10 @@ This document outlines the checkpoints for building a dynamic password generator
 
 ## Phase 1: Project Setup and Basic Structure
 
-- [ ] **1.1** Set up Go development environment.
-- [ ] **1.2** Create project directory and `main.go` file.
-- [ ] **1.3** Create `templates` directory for HTML templates.
-- [ ] **1.4** Define basic project structure.
+- [x] **1.1** Set up Go development environment.
+- [x] **1.2** Create project directory and `main.go` file.
+- [x] **1.3** Create `templates` directory for HTML templates.
+- [x] **1.4** Define basic project structure.
 
 ## Phase 2: Enhanced Password Generation Logic (Go)
 
