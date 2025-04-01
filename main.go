@@ -1,4 +1,4 @@
-package GoApp
+package main
 
 import (
 	"html/template"
