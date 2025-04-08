@@ -28,3 +28,33 @@ function copyPassword() {
         alert("Password copied to clipboard!"); // Inform the user that the password has been copied.
     }
 }
+
+if (passwordForm) {
+    // Event listener for the submission event
+    passwordForm.addEventListener('submit', function (event) {
+        // Prevents the default page reload after hitting "generate Password"
+        event.preventDefault();
+
+        // Creates a formData object
+        const formData = new FormData(passwordForm);
+
+        // Sends a POST request to the app
+        fetch('/', {
+            method: 'POST',
+            body: formData,
+        })
+            // The app will send the password as plain text as its response
+            .then(response => response.text())
+            // When successful, it updates the passwordDisplay div with the response and the clipboard button
+            .then(data => {
+                // Update the password display area with the received data
+                passwordDisplay.innerHTML = `<textarea rows="5" readonly>${data}</textarea>
+                                         <button type="button" id="copy-button" onclick="copyPassword()">Copy to Clipboard</button>`;
+            })
+            //If there is anything that goes wrong, log it in the console and display it in the passwordDisplay div
+            .catch(error => {
+                console.error('Error generating password:', error);
+                passwordDisplay.innerHTML = `<div class="error-message">Error generating password. Please try again.</div>`;
+            });
+    });
+}
