@@ -2,12 +2,96 @@
 <html>
 <head>
     <title>Advanced Password Generator</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="number"],
+        input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            rows: 5;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #password-display {
+            margin-top: 20px;
+            font-size: 1.2em;
+            padding: 10px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap; /* Preserve line breaks */
+        }
+
+        #copy-button {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
 <h1>Advanced Password Generator</h1>
 <form method="post">
+    <div class="form-group">
+        <label for="length">Password Length:</label>
+        <input id="length" max="64" min="8" name="length" type="range" value="16">
+        <span id="length-value">16</span>
+    </div>
+
+    <div class="form-group">
+        <input checked id="uppercase" name="uppercase" type="checkbox" value="true">
+        <label for="uppercase">Include Uppercase</label>
+    </div>
+
+    <div class="form-group">
+        <input id="symbols" name="symbols" type="checkbox" value="true">
+        <label for="symbols">Include Symbols (!@#$%^&amp;*)</label>
+    </div>
+
+    <div class="form-group">
+        <input id="words" name="words" type="checkbox" value="true">
+        <label for="words">Include Words</label>
+    </div>
+
+    <button type="submit">Generate Password</button>
 </form>
+
 <div id="password-display">
+    {{if .Password}}
+    <textarea readonly rows="5">{{.Password}}</textarea>
+    <button id="copy-button" onclick="copyPassword()" type="button">Copy to Clipboard</button>
+    {{end}}
 </div>
+
+<script src="/static/script.js"></script>
 </body>
 </html>
