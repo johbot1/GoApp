@@ -11,30 +11,29 @@ This document outlines the checkpoints for building a dynamic password generator
 
 ## Phase 2: Enhanced Password Generation Logic (Go)
 
-- [ ] **2.1** Implement `generatePassword(length int, includeUppercase bool, includeSymbols bool, includeWords bool)` function.
-- [ ] **2.2** Define character sets for lowercase, uppercase, symbols, and words (from a simple word list).
-- [ ] **2.3** Dynamically build the character set based on user selections.
-- [ ] **2.4** Handle potential errors during random number generation.
-- [ ] **2.5** Include `math/big` for proper random number generation.
+- [X] **2.1** Implement `generatePassword(length int, includeUppercase bool, includeSymbols bool, includeWords bool)` function.
+- [X] **2.2** Define character sets for lowercase, uppercase, symbols, and words (from a simple word list).
+- [X] **2.3** Dynamically build the character set based on user selections.
+- [X] **2.4** Handle potential errors during random number generation.
+- [X] **2.5** Include `math/big` for proper random number generation.
 
 ## Phase 3: Web Server Setup (Go)
 
-- [ ] **3.1** Set up basic HTTP server using `net/http`.
-- [ ] **3.2** Define a handler function for the root URL (`/`).
-- [ ] **3.3** Implement basic routing for GET and POST requests.
-- [ ] **3.4** Start server on port 8080.
+- [X] **3.1** Set up basic HTTP server using `net/http`.
+- [X] **3.2** Define a handler function for the root URL (`/`).
+- [X] **3.3** Implement basic routing for GET and POST requests.
+- [X] **3.4** Start server on port 8080.
 
 ## Phase 4: Enhanced HTML Template Creation
-
-- [ ] **4.1** Create `index.html` template in the `templates` directory.
-- [ ] **4.2** Design a form with:
-    - [ ] A slider for password length.
-    - [ ] Checkboxes for uppercase, symbols, and words.
-    - [ ] A large text area to display the generated password.
-    - [ ] A "Copy to Clipboard" button.
-- [ ] **4.3** Use template actions (`{{if}}`, `{{end}}`, `{{.Variable}}`) to dynamically display the generated password.
-- [ ] **4.4** Implement basic HTML structure.
-- [ ] **4.5** Implement javascript for the copy to clipboard button.
+- [X] **4.1** Create `index.html` template in the `templates` directory.
+- [X] **4.2** Design a form with:
+    - [X] A slider for password length.
+    - [X] Checkboxes for uppercase, symbols, and words.
+    - [X] A large text area to display the generated password.
+    - [X] A "Copy to Clipboard" button.
+- [X] **4.3** Use template actions (`{{if.Password}}` and `{{.Password}}`) to dynamically display the generated password.
+- [X] **4.4** Implement basic HTML structure.
+- [X] **4.5** Implement javascript for the copy to clipboard button.
 
 ## Phase 5: Integrating Go and HTML
 
