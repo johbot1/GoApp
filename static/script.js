@@ -58,3 +58,53 @@ if (passwordForm) {
             });
     });
 }
+
+// This event listener ensures the code inside runs only AFTER the entire HTML document has been fully loaded
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Gets a reference to the element with the ID 'password-form'.
+    const form = document.getElementById('password-form');
+
+    // Gets a reference to the element with the ID 'password-display'.
+    const display = document.getElementById('password-display');
+
+    // Adds an event listener to the 'submit' event
+    // The 'async' allows 'await' inside this function, which is for handling the fetching.
+    form.addEventListener('submit', async function (e) {
+
+        // TODO: Fix this
+        // Prevents the default form submission behavior, which has been causing a full page reload
+        e.preventDefault();
+
+        // Creates a new FormData object from the 'form'. This makes it easy to collect all the data from the form
+        const formData = new FormData(form);
+        try {
+            // Attempts to make an asynchronous HTTP request to the root path
+            const response = await fetch('/', {
+                method: 'POST',
+                // Sends the form data in the request body.
+                body: formData,
+                headers: {
+                    // Sets a custom header to indicate that this is an AJAX(?) request.
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            // Awaits the response from the server, which is the generation of the password
+            const password = await response.text();
+
+            // Updates the 'display' element's inner HTML to show the generated password button
+            display.innerHTML = `
+                <textarea readonly rows="5">${password}</textarea>
+                <button id="copy-button" onclick="copyPassword()" type="button">Copy to Clipboard</button>
+            `;
+            // Sets the 'display' element to be visible.
+            display.style.display = 'block';
+        } catch (err) {
+            // Displays an error message in the 'display' element.
+            display.innerHTML = '<p class="error-message">Error generating password.</p>';
+            // Sets the 'display' element to be visible to show the error.
+            display.style.display = 'block';
+        }
+    });
+});
