@@ -44,7 +44,7 @@ func generatePassword(length int, includeUppercase bool, includeSymbols bool, in
 	// Error Handling: Handles the case when the slider breaks like it had been.
 	if length <= 7 || length > 64 {
 		log.Printf("[generatePassword]: Invalid password length provided: %d", length)
-		return "Please specify a password length between 1 and 64."
+		return "Please specify a password length between 8 and 64."
 	}
 
 	// Begins a list with lowercase Letters
