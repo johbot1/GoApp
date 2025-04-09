@@ -62,11 +62,16 @@
             margin-top: 10px;
             font-weight: bold;
         }
+
+        #password-display:empty {
+            display: none;
+        }
+
     </style>
 </head>
 <body>
 <h1>Advanced Password Generator</h1>
-<form method="post">
+<form method="post", id = "password-form">
     <div class="form-group">
         <label for="length">Password Length:</label>
         <input id="length" max="64" min="8" name="length" type="range" value="16">
@@ -96,12 +101,13 @@
 </div>
 
 
+{{if .Password}}
 <div id="password-display">
-    {{if .Password}}
     <textarea readonly rows="5">{{.Password}}</textarea>
     <button id="copy-button" onclick="copyPassword()" type="button">Copy to Clipboard</button>
-    {{end}}
 </div>
+{{end}}
+
 
 <script src="/static/script.js"></script>
 </body>
