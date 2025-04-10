@@ -71,27 +71,39 @@
 </head>
 <body>
 <h1>Advanced Password Generator</h1>
-<form method="post", id = "password-form">
+<form method="post" id = "password-form">
     <div class="form-group">
-        <label for="length">Password Length:</label>
-        <input id="length" max="64" min="8" name="length" type="range" value="16">
-        <span id="length-value">16</span>
+        <label for="length">Password Length: <span id="length-value">{{.Length}}</span></label>
+        <input id="length" max="64" min="8" name="length" type="range" value="{{.Length}}">
+
     </div>
 
-    <div class="form-group">
-        <input id="uppercase" name="uppercase" type="checkbox" value="true">
-        <label for="uppercase">Include Uppercase</label>
-    </div>
+    {{if eq .Uppercase "true"}}
+    <input id="uppercase" name="uppercase" type="checkbox" value="true" checked>
+    {{else}}
+    <input id="uppercase" name="uppercase" type="checkbox" value="true">
+    {{end}}
+    <label for="uppercase">Include Uppercase</label>
+
+
+    {{if eq .Symbols "true"}}
+    <input id="symbols" name="symbols" type="checkbox" value="true" checked>
+    {{else}}
+    <input id="symbols" name="symbols" type="checkbox" value="true">
+    {{end}}
+    <label for="symbols">Include Symbols (!@#$%^&*)</label>
+
 
     <div class="form-group">
-        <input id="symbols" name="symbols" type="checkbox" value="true">
-        <label for="symbols">Include Symbols (!@#$%^&amp;*)</label>
-    </div>
-
-    <div class="form-group">
+        {{if eq .Words "true"}}
+        <input id="words" name="words" type="checkbox" value="true" checked>
+        {{else}}
         <input id="words" name="words" type="checkbox" value="true">
+        {{end}}
         <label for="words">Include Words</label>
     </div>
+
+
 
     <button type="submit">Generate Password</button>
 </form>
