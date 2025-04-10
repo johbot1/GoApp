@@ -48,12 +48,12 @@ This document outlines the checkpoints for building a dynamic password generator
 
 ## Phase 6: Testing and Refinement
 
-- [ ] **6.1** Test password generation with various lengths and combinations of options.
-- [ ] **6.2** Verify secure randomness of generated passwords.
-- [ ] **6.3** Test form submission and template rendering.
-- [ ] **6.4** Test "Copy to Clipboard" functionality.
-- [ ] **6.5** Improve error handling and user feedback.
-- [ ] **6.6** Refactor code for readability and maintainability.
+- [X] **6.1** Test password generation with various lengths and combinations of options.
+- [X] **6.2** Verify secure randomness of generated passwords.
+- [X] **6.3** Test form submission and template rendering.
+- [X] **6.4** Test "Copy to Clipboard" functionality.
+- [X] **6.5** Improve error handling and user feedback.
+- [X] **6.6** Refactor code for readability and maintainability.
 
 ## Phase 7: Feedback
 - To be completed upon project submission
