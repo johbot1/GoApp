@@ -37,14 +37,14 @@ This document outlines the checkpoints for building a dynamic password generator
 
 ## Phase 5: Integrating Go and HTML
 
-- [ ] **5.1** Parse HTML template using `html/template`.
-- [ ] **5.2** Handle form submission (POST request) in Go.
-- [ ] **5.3** Extract password length, uppercase, symbols, and words selections from form data.
-- [ ] **5.4** Call `generatePassword()` with the extracted data.
-- [ ] **5.5** Pass the generated password to the template for rendering.
-- [ ] **5.6** Render the template with the generated password.
-- [ ] **5.7** Handle GET requests for initial page load (no password).
-- [ ] **5.8** Handle invalid input lengths.
+- [X] **5.1** Parse HTML template using `html/template`.
+- [X] **5.2** Handle form submission (POST request) in Go.
+- [X] **5.3** Extract password length, uppercase, symbols, and words selections from form data.
+- [X] **5.4** Call `generatePassword()` with the extracted data.
+- [X] **5.5** Pass the generated password to the template for rendering.
+- [X] **5.6** Render the template with the generated password.
+- [X] **5.7** Handle GET requests for initial page load (no password).
+- [X] **5.8** Handle invalid input lengths.
 
 ## Phase 6: Testing and Refinement
 
