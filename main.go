@@ -59,7 +59,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		wordListError = "" // Clear after handling this request
 	}()
 
-	data := make(map[string]string) // Template data container
+	// Template data container
+	data := make(map[string]string)
 
 	if r.Method == http.MethodPost {
 		// Parse the form submission
