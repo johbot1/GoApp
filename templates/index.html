@@ -13,6 +13,7 @@
 
     </div>
 
+    <!--  Uppercase checkbox  -->
     {{if eq .Uppercase "true"}}
     <input id="uppercase" name="uppercase" type="checkbox" value="true" checked>
     {{else}}
@@ -20,7 +21,7 @@
     {{end}}
     <label for="uppercase">Include Uppercase</label>
 
-
+    <!--  Symbols checkbox  -->
     {{if eq .Symbols "true"}}
     <input id="symbols" name="symbols" type="checkbox" value="true" checked>
     {{else}}
@@ -28,7 +29,7 @@
     {{end}}
     <label for="symbols">Include Symbols (!@#$%^&*)</label>
 
-
+    <!--  Words checkbox  -->
     <div class="form-group">
         {{if eq .Words "true"}}
         <input id="words" name="words" type="checkbox" value="true" checked>
@@ -37,8 +38,6 @@
         {{end}}
         <label for="words">Include Words</label>
     </div>
-
-
 
     <button type="submit">Generate Password</button>
 </form>
