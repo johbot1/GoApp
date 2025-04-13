@@ -95,6 +95,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// On initial page load or GET, pass in error if one exists
 		data["WordListError"] = wordListError
+		data["Length"] = "8"
 	}
 
 	// Parse and render the HTML template

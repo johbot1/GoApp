@@ -56,7 +56,7 @@ This document outlines the checkpoints for building a dynamic password generator
 - [X] **6.6** Refactor code for readability and maintainability.
 
 ## Phase 7: Feedback
-- [] Start at 8
+- [X] Start at 8
 - [] Change "Include Uppercase" to be default 
   - [] Add "Only Upper Case" / "only lowercase" instead
 - [] Change include words to ONLY words instead
