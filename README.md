@@ -15,6 +15,7 @@ _too_ bad. Figuring out Go was convoluted and not very fun. I am glad to be done
 
 
 # Sources:
+- Wordbank: https://github.com/dwyl/english-words
 - https://go.dev/doc/articles/wiki/
 - https://medium.com/@harshvardhancc/building-web-apps-with-golang-a-step-by-step-guide-3754a25dcf47
 - https://www.sohamkamani.com/golang/how-to-build-a-web-application/

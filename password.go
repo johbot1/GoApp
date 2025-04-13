@@ -4,87 +4,141 @@ import (
 	"crypto/rand"
 	"log"
 	"math/big"
+	"strings"
 )
 
-// generatePassword dynamically builds a password based on user input flags.
-// It supports lowercase, uppercase, symbols, and word-based construction.
+// generatePassword constructs a password of exact 'length'.
+// If includeWords is true, it assembles the password from whole words whose combined length matches the target.
+// Symbols are inserted at the beginning, middle, and end if enabled. Letter casing is applied after construction.
 func generatePassword(length int, includeUppercase bool, includeSymbols bool, includeWords bool) string {
-	// Edge case: prevent broken input (e.g., slider malfunction)
+	// Validate input bounds (had an issue with it flying out of bounds, so this will ensure it doesn't)
 	if length <= 7 || length > 64 {
-		log.Printf("[generatePassword]: Invalid password length provided: %d", length)
+		log.Printf("[generatePassword]: Invalid password length: %d", length)
 		wordListError = "Please specify a password length between 8 and 64."
 		return "Please specify a password length between 8 and 64."
 	}
 
-	// Start with lowercase alphabet
-	chars := "abcdefghijklmnopqrstuvwxyz"
+	// Word-based password construction
+	if includeWords {
+		// Ensure the word list is loaded only once
+		loadWordListMutex.Do(func() {
+			err := loadWordList("./static/words.json")
+			if err != nil {
+				log.Printf("[generatePassword]: Failed loading word list")
+				wordListError = "Failed to load word list"
+				wordListLoaded = false
+				wordList = nil
+			}
+		})
 
-	// Append optional character sets
+		if !wordListLoaded || len(wordList) == 0 {
+			wordListError = "Word list unavailable"
+			return ""
+		}
+
+		// Group words by their length for efficient lookup
+		lengthMap := map[int][]string{}
+		minLen := 100
+		for _, word := range wordList {
+			l := len(word)
+			if l > length {
+				continue
+			}
+			lengthMap[l] = append(lengthMap[l], word)
+			if l < minLen {
+				minLen = l
+			}
+		}
+
+		var result []string
+
+		// Attempt to find a valid combination of words whose lengths sum to the requested password length
+		if findWordCombo(length, []int{}, &result, lengthMap) {
+			password := strings.Join(result, "")
+
+			// Apply casing if enabled
+			if includeUppercase {
+				password = strings.ToUpper(password)
+			}
+
+			// Insert symbols at the start, middle, and end if enabled and if the password has at least 3 characters
+			if includeSymbols && len(password) >= 3 {
+				symbols := "!@#$%^&*()-_=+"
+				passwordRunes := []rune(password)
+
+				startIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbols))))
+				passwordRunes[0] = rune(symbols[startIdx.Int64()])
+
+				endIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbols))))
+				passwordRunes[len(passwordRunes)-1] = rune(symbols[endIdx.Int64()])
+
+				midPos := len(passwordRunes) / 2
+				midIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbols))))
+				passwordRunes[midPos] = rune(symbols[midIdx.Int64()])
+
+				password = string(passwordRunes)
+			}
+
+			return password
+		}
+
+		wordListError = "No combination of words could be found for the selected length"
+		return ""
+	}
+
+	// Standard character-based password construction
+	chars := "abcdefghijklmnopqrstuvwxyz"
 	if includeUppercase {
-		chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	}
 	if includeSymbols {
 		chars += "!@#$%^&*()-_=+"
 	}
 
-	// A rune is a Go Type that supports unicode characters
-	// This was the recommended to use over a standard array, due to how
-	// Go handles unicode characters, and iterating over them
-	var allChars []rune
+	allChars := []rune(chars)
 
-	if includeWords {
-		// Load the word list once if it's never been loaded
-		loadWordListMutex.Do(func() {
-			err := loadWordList("./static/words.json")
-			if err != nil {
-				log.Printf("[GeneratePassword]: Failed loading word list!")
-				wordListError = "Failed to load word list!"
-				wordListLoaded = false
-				wordList = nil // Reset in case of partial load
-			}
-		})
-
-		// Return error if loading failed
-		if !wordListLoaded && wordListError != "" {
-			return wordListError
-		}
-
-		// Convert words into characters and append to pool
-		if wordListLoaded && len(wordList) > 0 {
-			for _, word := range wordList {
-				allChars = append(allChars, []rune(word)...)
-			}
-		}
-	}
-
-	// Add any additional characters gathered from toggles
-	allChars = append(allChars, []rune(chars)...)
-
-	// If no characters are available, return an error
 	if len(allChars) == 0 {
-		log.Printf("[generatePassword]: No character sets selected.")
-		wordListError = "Please select at least one character set."
+		wordListError = "Please select at least one character set"
 		return ""
 	}
 
-	// Warn user if password might lack randomness due to low character diversity
-	if length > len(allChars) && includeWords && wordListLoaded && len(wordList) > 0 {
-		log.Printf("[generatePassword]: Length exceeds available characters.")
-		wordListError = "The requested length might result in a less random password..."
-		return ""
-	}
-
-	// Password generation loop
 	password := make([]rune, length)
 	for i := 0; i < length; i++ {
-		// Cryptographically secure random selection
 		randIndex, err := rand.Int(rand.Reader, big.NewInt(int64(len(allChars))))
 		if err != nil {
-			log.Printf("[generatePassword]: Error during password generation.")
-			wordListError = "Unexpected error while generating password."
+			wordListError = "Unexpected error while generating password"
 			return ""
 		}
 		password[i] = allChars[randIndex.Int64()]
 	}
+
 	return string(password)
+}
+
+// findWordCombo recursively searches for a combination of word lengths that exactly sum to the target password length.
+// When a valid combination is found, it appends randomly selected words matching those lengths to the result.
+func findWordCombo(remaining int, path []int, result *[]string, lengthMap map[int][]string) bool {
+	if remaining == 0 {
+		for _, l := range path {
+			words := lengthMap[l]
+			if len(words) == 0 {
+				return false
+			}
+			rIdx, err := rand.Int(rand.Reader, big.NewInt(int64(len(words))))
+			if err != nil {
+				return false
+			}
+			*result = append(*result, words[rIdx.Int64()])
+		}
+		return true
+	}
+
+	for l := range lengthMap {
+		if l <= remaining {
+			if findWordCombo(remaining-l, append(path, l), result, lengthMap) {
+				return true
+			}
+		}
+	}
+	return false
 }
