@@ -61,6 +61,17 @@ if (passwordForm) {
 
 // This event listener ensures the code inside runs only AFTER the entire HTML document has been fully loaded
 document.addEventListener('DOMContentLoaded', function () {
+    // Ensure only one of the case radio buttons is selected
+    const onlyUpper = document.getElementById("onlyUpper");
+    const onlyLower = document.getElementById("onlyLower");
+
+    onlyUpper?.addEventListener("change", () => {
+        if (onlyUpper.checked) onlyLower.checked = false;
+    });
+
+    onlyLower?.addEventListener("change", () => {
+        if (onlyLower.checked) onlyUpper.checked = false;
+    });
 
     // Gets a reference to the element with the ID 'password-form'.
     const form = document.getElementById('password-form');
@@ -72,7 +83,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // The 'async' allows 'await' inside this function, which is for handling the fetching.
     form.addEventListener('submit', async function (e) {
 
-        // TODO: Fix this
         // Prevents the default form submission behavior, which has been causing a full page reload
         e.preventDefault();
 
