@@ -42,8 +42,8 @@ func loadWordList(filename string) error {
 
 // main starts the web server and handles static file routing
 func main() {
-	// Route for the homepage and password form handler
-	http.HandleFunc("/", handler)
+	// Route for the homepage and password form passwordFormHandler
+	http.HandleFunc("/", passwordFormHandler)
 	log.Println("Listening on port 8080")
 
 	// Serve static assets (JS, CSS, etc.)
@@ -54,9 +54,9 @@ func main() {
 
 }
 
-// handler parses form submissions and injects data into the template
-func handler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[handler] Request received: method=%s", r.Method)
+// passwordFormHandler parses form submissions and injects data into the template
+func passwordFormHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[passwordFormHandler] Request received: method=%s", r.Method)
 	defer func() {
 		wordListError = "" // Clear after handling this request
 	}()
@@ -79,7 +79,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		casePref := r.FormValue("case")         // Get case setting
 		includeUppercase := casePref == "upper" // Convert to boolean
 
-		log.Printf("[handler] Form values - length=%s | case=%s | symbols=%t | words=%t",
+		log.Printf("[passwordFormHandler] Form values - length=%s | case=%s | symbols=%t | words=%t",
 			lengthStr, r.FormValue("case"), r.FormValue("symbols") == "true", r.FormValue("words") == "true")
 
 		// Validate length
@@ -90,16 +90,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Generate the password and populate the template data
-		log.Println("[handler] Calling generatePassword with parsed options")
+		log.Println("[passwordFormHandler] Calling generatePassword with parsed options")
 		password := generatePassword(length, includeUppercase, symbols, words)
 		if casePref == "upper" && !words {
 			password = strings.ToUpper(password)
 		}
 		data["Password"] = password
 		if password != "" {
-			log.Printf("[handler] Password generated successfully!")
+			log.Printf("[passwordFormHandler] Password generated successfully!")
 		} else {
-			log.Println("[handler] Password generation failed or returned empty result")
+			log.Println("[passwordFormHandler] Password generation failed or returned empty result")
 		}
 
 		// Always pass the latest error (it may have changed in generatePassword)
