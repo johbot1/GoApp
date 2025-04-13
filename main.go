@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -72,9 +73,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 		// Extract and parse user selections
 		lengthStr := r.FormValue("length")
-		uppercase := r.FormValue("uppercase") == "true"
 		symbols := r.FormValue("symbols") == "true"
 		words := r.FormValue("words") == "true"
+		casePref := r.FormValue("case")         // Get case setting
+		includeUppercase := casePref == "upper" // Convert to boolean
 
 		// Validate length
 		length, err := strconv.Atoi(lengthStr)
@@ -84,18 +86,23 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Generate the password and populate the template data
-		password := generatePassword(length, uppercase, symbols, words)
+		password := generatePassword(length, includeUppercase, symbols, words)
+		if casePref == "upper" && !words {
+			password = strings.ToUpper(password)
+		}
 		data["Password"] = password
+
 		// Always pass the latest error (it may have changed in generatePassword)
 		data["WordListError"] = wordListError
 		data["Length"] = lengthStr
-		data["Uppercase"] = strconv.FormatBool(uppercase)
+		data["Case"] = casePref
 		data["Symbols"] = strconv.FormatBool(symbols)
 		data["Words"] = strconv.FormatBool(words)
 	} else {
 		// On initial page load or GET, pass in error if one exists
 		data["WordListError"] = wordListError
 		data["Length"] = "8"
+		data["Case"] = "lower"
 	}
 
 	// Parse and render the HTML template
