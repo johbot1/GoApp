@@ -61,6 +61,6 @@ This document outlines the checkpoints for building a dynamic password generator
   - [X] Add "Only Upper Case" / "only lowercase" instead
 - [X] Change include words to ONLY words instead
   - [X] This means that it will be ONLY words squished together
-- [] Add minor debug statements
+- [X] Add minor debug statements
 - [] Change UPPERCASE to constants, same w/ Symbols and lowercase 
 - [] Rename Handler method to more descriptive name
