@@ -43,7 +43,7 @@ func loadWordList(filename string) error {
 func main() {
 	// Route for the homepage and password form handler
 	http.HandleFunc("/", handler)
-	fmt.Println("Beginning web app!")
+	log.Println("Listening on port 8080")
 
 	// Serve static assets (JS, CSS, etc.)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
