@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+const (
+	lowercaseChars = "abcdefghijklmnopqrstuvwxyz"
+	uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	symbolChars    = "!@#$%^&*()-_=+"
+)
+
 // generatePassword constructs a password of exact 'length'.
 // If includeWords is true, it assembles the password from whole words whose combined length matches the target.
 // Symbols are inserted at the beginning, middle, and end if enabled. Letter casing is applied after construction.
@@ -63,18 +69,17 @@ func generatePassword(length int, includeUppercase bool, includeSymbols bool, in
 
 			// Insert symbols at the start, middle, and end if enabled and if the password has at least 3 characters
 			if includeSymbols && len(password) >= 3 {
-				symbols := "!@#$%^&*()-_=+"
 				passwordRunes := []rune(password)
 
-				startIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbols))))
-				passwordRunes[0] = rune(symbols[startIdx.Int64()])
+				startIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbolChars))))
+				passwordRunes[0] = rune(symbolChars[startIdx.Int64()])
 
-				endIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbols))))
-				passwordRunes[len(passwordRunes)-1] = rune(symbols[endIdx.Int64()])
+				endIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbolChars))))
+				passwordRunes[len(passwordRunes)-1] = rune(symbolChars[endIdx.Int64()])
 
 				midPos := len(passwordRunes) / 2
-				midIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbols))))
-				passwordRunes[midPos] = rune(symbols[midIdx.Int64()])
+				midIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbolChars))))
+				passwordRunes[midPos] = rune(symbolChars[midIdx.Int64()])
 
 				password = string(passwordRunes)
 			}
@@ -87,12 +92,12 @@ func generatePassword(length int, includeUppercase bool, includeSymbols bool, in
 	}
 
 	// Standard character-based password construction
-	chars := "abcdefghijklmnopqrstuvwxyz"
+	chars := lowercaseChars
 	if includeUppercase {
-		chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		chars = uppercaseChars
 	}
 	if includeSymbols {
-		chars += "!@#$%^&*()-_=+"
+		chars += symbolChars
 	}
 
 	allChars := []rune(chars)
