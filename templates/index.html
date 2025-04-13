@@ -14,12 +14,23 @@
     </div>
 
     <!--  Uppercase checkbox  -->
-    {{if eq .Uppercase "true"}}
-    <input id="uppercase" name="uppercase" type="checkbox" value="true" checked>
-    {{else}}
-    <input id="uppercase" name="uppercase" type="checkbox" value="true">
-    {{end}}
-    <label for="uppercase">Include Uppercase</label>
+    <div class="form-group">
+        <label>Letter Case:</label>
+
+        {{if eq .Case "upper"}}
+        <input type="radio" id="onlyUpper" name="case" value="upper" checked>
+        <label for="onlyUpper">Only Uppercase</label>
+
+        <input type="radio" id="onlyLower" name="case" value="lower">
+        <label for="onlyLower">Only Lowercase</label>
+        {{else}}
+        <input type="radio" id="onlyUpper" name="case" value="upper">
+        <label for="onlyUpper">Only Uppercase</label>
+
+        <input type="radio" id="onlyLower" name="case" value="lower" checked>
+        <label for="onlyLower">Only Lowercase</label>
+        {{end}}
+    </div>
 
     <!--  Symbols checkbox  -->
     {{if eq .Symbols "true"}}
