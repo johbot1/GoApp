@@ -69,6 +69,7 @@ func passwordFormHandler(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
 			http.Error(w, "Error parsing form", http.StatusBadRequest)
+			log.Println("ERROR [passwordFormHandler] Password generation failed or returned empty result")
 			return
 		}
 
@@ -86,6 +87,7 @@ func passwordFormHandler(w http.ResponseWriter, r *http.Request) {
 		length, err := strconv.Atoi(lengthStr)
 		if err != nil || length <= 0 {
 			http.Error(w, "Invalid length", http.StatusBadRequest)
+			log.Println("ERROR [passwordFormHandler] Password generation failed or returned empty result")
 			return
 		}
 
@@ -99,7 +101,7 @@ func passwordFormHandler(w http.ResponseWriter, r *http.Request) {
 		if password != "" {
 			log.Printf("[passwordFormHandler] Password generated successfully!")
 		} else {
-			log.Println("[passwordFormHandler] Password generation failed or returned empty result")
+			log.Println("ERROR [passwordFormHandler] Password generation failed or returned empty result")
 		}
 
 		// Always pass the latest error (it may have changed in generatePassword)
@@ -120,6 +122,7 @@ func passwordFormHandler(w http.ResponseWriter, r *http.Request) {
 	err := tmpl.Execute(w, data)
 	if err != nil {
 		http.Error(w, "Template execution error", http.StatusInternalServerError)
+		log.Println("ERROR [passwordFormHandler] Password generation failed or returned empty result")
 		return
 	}
 }
