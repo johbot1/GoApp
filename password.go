@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/big"
 	"strings"
+	"unicode"
 )
 
 const (
@@ -68,24 +69,8 @@ func generatePassword(length int, casePref string, includeSymbols bool, includeW
 			} else if casePref == "mixed" {
 				password = applyMixedCase(password)
 			}
+
 			// Apply symbols if enabled
-			if includeSymbols && len(password) >= 3 {
-				passwordRunes := []rune(password)
-
-				startIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbolChars))))
-				passwordRunes[0] = rune(symbolChars[startIdx.Int64()])
-
-				endIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbolChars))))
-				passwordRunes[len(passwordRunes)-1] = rune(symbolChars[endIdx.Int64()])
-
-				midPos := len(passwordRunes) / 2
-				midIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbolChars))))
-				passwordRunes[midPos] = rune(symbolChars[midIdx.Int64()])
-
-				password = string(passwordRunes)
-			}
-
-			// Insert symbols at the start, middle, and end if enabled and if the password has at least 3 characters
 			if includeSymbols && len(password) >= 3 {
 				passwordRunes := []rune(password)
 
@@ -164,4 +149,22 @@ func findWordCombo(remaining int, path []int, result *[]string, lengthMap map[in
 		}
 	}
 	return false
+}
+
+// applyMixedCase randomly uppercases or lowercases each character in the password string
+func applyMixedCase(password string) string {
+	var result strings.Builder
+	for _, ch := range password {
+		upper, err := rand.Int(rand.Reader, big.NewInt(2))
+		if err != nil {
+			result.WriteRune(ch)
+			continue
+		}
+		if upper.Int64() == 1 {
+			result.WriteRune(unicode.ToUpper(ch))
+		} else {
+			result.WriteRune(unicode.ToLower(ch))
+		}
+	}
+	return result.String()
 }
