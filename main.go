@@ -21,22 +21,32 @@ var wordListError string        // Storing error messages
 // loadWordList reads a JSON file containing a map of words and extracts just the keys (the words).
 // This function is only called once, even if triggered multiple times (guarded by sync.Once).
 func loadWordList(filename string) error {
-	data, err := ioutil.ReadFile(filename) // Read the file as a byte slice
+	data, err := ioutil.ReadFile(filename)
 	if err != nil {
+		wordListLoaded = false // Ensure flag is false on error
+		log.Printf("ERROR [loadWordList] Failed to read file '%s': %v", filename, err)
 		return fmt.Errorf("error reading word list file '%s': %w", filename, err)
 	}
 
-	var wordsMap map[string]int
-	err = json.Unmarshal(data, &wordsMap) // Parse the JSON into a map
+	// ***MODIFIED***: Unmarshal directly into the global wordList slice
+	err = json.Unmarshal(data, &wordList)
 	if err != nil {
-		return fmt.Errorf("error unmarshalling JSON from '%s': %w", filename, err)
+		wordListLoaded = false // Ensure flag is false on error
+		wordList = nil         // Clear potentially partially unmarshalled data
+		log.Printf("ERROR [loadWordList] Failed to parse JSON array from '%s': %v", filename, err)
+		return fmt.Errorf("error unmarshalling JSON array from '%s': %w", filename, err)
 	}
 
-	// Convert map keys to a slice of words
-	for word := range wordsMap {
-		wordList = append(wordList, word)
+	// Check if the list is empty after successful unmarshalling
+	if len(wordList) == 0 {
+		wordListLoaded = false // Treat empty list as not successfully loaded for practical purposes
+		log.Printf("Warning: Word list '%s' loaded but is empty.", filename)
+		return fmt.Errorf("word list '%s' is empty", filename)
+	} else {
+		wordListLoaded = true
+		log.Printf("Word list '%s' loaded successfully with %d words.", filename, len(wordList))
 	}
-	wordListLoaded = true
+
 	return nil
 }
 
