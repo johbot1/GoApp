@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -21,20 +21,16 @@ var wordListError string        // Storing error messages
 // loadWordList reads a JSON file containing a map of words and extracts just the keys (the words).
 // This function is only called once, even if triggered multiple times (guarded by sync.Once).
 func loadWordList(filename string) error {
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename) // Read the file as a byte slice
 	if err != nil {
-		wordListLoaded = false // Ensure flag is false on error
 		log.Printf("ERROR [loadWordList] Failed to read file '%s': %v", filename, err)
 		return fmt.Errorf("error reading word list file '%s': %w", filename, err)
 	}
-
-	// ***MODIFIED***: Unmarshal directly into the global wordList slice
+	//Unmarshal directly into the global wordList slice
 	err = json.Unmarshal(data, &wordList)
 	if err != nil {
-		wordListLoaded = false // Ensure flag is false on error
-		wordList = nil         // Clear potentially partially unmarshalled data
 		log.Printf("ERROR [loadWordList] Failed to parse JSON array from '%s': %v", filename, err)
-		return fmt.Errorf("error unmarshalling JSON array from '%s': %w", filename, err)
+		return fmt.Errorf("error unmarshalling word list from '%s': %w", filename, err)
 	}
 
 	// Check if the list is empty after successful unmarshalling
@@ -46,7 +42,6 @@ func loadWordList(filename string) error {
 		wordListLoaded = true
 		log.Printf("Word list '%s' loaded successfully with %d words.", filename, len(wordList))
 	}
-
 	return nil
 }
 
