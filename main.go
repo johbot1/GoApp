@@ -1,15 +1,18 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
+	"math/big"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
+	"unicode"
 )
 
 // Global state for the word list and error tracking
@@ -82,8 +85,7 @@ func passwordFormHandler(w http.ResponseWriter, r *http.Request) {
 		lengthStr := r.FormValue("length")
 		symbols := r.FormValue("symbols") == "true"
 		words := r.FormValue("words") == "true"
-		casePref := r.FormValue("case")         // Get case setting
-		includeUppercase := casePref == "upper" // Convert to boolean
+		casePref := r.FormValue("case") // "upper", "lower", or "mixed"
 
 		log.Printf("[passwordFormHandler] Form values - length=%s | case=%s | symbols=%t | words=%t",
 			lengthStr, r.FormValue("case"), r.FormValue("symbols") == "true", r.FormValue("words") == "true")
@@ -98,10 +100,13 @@ func passwordFormHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Generate the password and populate the template data
 		log.Println("[passwordFormHandler] Calling generatePassword with parsed options")
-		password := generatePassword(length, includeUppercase, symbols, words)
+		password := generatePassword(length, casePref, symbols, words)
 		if casePref == "upper" && !words {
 			password = strings.ToUpper(password)
+		} else if casePref == "mixed" && !words {
+			password = applyMixedCase(password)
 		}
+
 		data["Password"] = password
 		if password != "" {
 			log.Printf("[passwordFormHandler] Password generated successfully!")
@@ -130,4 +135,22 @@ func passwordFormHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("ERROR [passwordFormHandler] Password generation failed or returned empty result")
 		return
 	}
+}
+
+func applyMixedCase(password string) string {
+	var result strings.Builder
+	for _, ch := range password {
+		// 50/50 chance
+		upper, err := rand.Int(rand.Reader, big.NewInt(2))
+		if err != nil {
+			result.WriteRune(ch) // fallback, don't alter
+			continue
+		}
+		if upper.Int64() == 1 {
+			result.WriteRune(unicode.ToUpper(ch))
+		} else {
+			result.WriteRune(unicode.ToLower(ch))
+		}
+	}
+	return result.String()
 }
