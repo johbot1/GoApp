@@ -28,6 +28,7 @@ function copyPassword() {
         alert("Password copied to clipboard!"); // Inform the user that the password has been copied.
     }
 }
+const passwordForm = document.getElementById("password-display");
 
 if (passwordForm) {
     // Event listener for the submission event
@@ -74,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Gets a reference to the element with the ID 'password-form'.
-    const form = document.getElementById('password-form');
+    const form = document.getElementById('password-display');
 
     // Gets a reference to the element with the ID 'password-display'.
     const display = document.getElementById('password-display');
