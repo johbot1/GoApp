@@ -23,6 +23,10 @@
             <input type="radio" id="onlyLower" name="case" value="lower" {{if ne .Case "upper"}}checked{{end}} />
             Only Lowercase
         </label>
+        <label>
+            <input type="radio" id="mixedCase" name="case" value="mixed" {{if eq .Case "mixed"}}checked{{end}} />
+            Mixed Case
+        </label>
     </div>
 
     <!-- Symbols checkbox -->
