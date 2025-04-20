@@ -64,7 +64,7 @@ This document outlines the checkpoints for building a dynamic password generator
 - [X] Add minor debug statements
 - [X] Change UPPERCASE to constants, same w/ Symbols and lowercase 
 - [X] Rename Handler method to more descriptive name
-- [] Add uppercase/lowercase to the same line as the button
-  - Same with include symbols + words
+- [X] Add uppercase/lowercase to the same line as the button
+  - [X]Same with include symbols + words
 - [X] Remove "Letter Case: "
 - [] Button for "Include Mixed Case"

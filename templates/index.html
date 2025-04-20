@@ -13,40 +13,34 @@
 
     </div>
 
-    <!--  Uppercase checkbox  -->
-    <div class="form-group">
-        {{if eq .Case "upper"}}
-        <input type="radio" id="onlyUpper" name="case" value="upper" checked>
-        <label for="onlyUpper">Only Uppercase</label>
-
-        <input type="radio" id="onlyLower" name="case" value="lower">
-        <label for="onlyLower">Only Lowercase</label>
-        {{else}}
-        <input type="radio" id="onlyUpper" name="case" value="upper">
-        <label for="onlyUpper">Only Uppercase</label>
-
-        <input type="radio" id="onlyLower" name="case" value="lower" checked>
-        <label for="onlyLower">Only Lowercase</label>
-        {{end}}
+    <!-- Case radio buttons -->
+    <div class="form-group inline-group">
+        <label>
+            <input type="radio" id="onlyUpper" name="case" value="upper" {{if eq .Case "upper"}}checked{{end}} />
+            Only Uppercase
+        </label>
+        <label>
+            <input type="radio" id="onlyLower" name="case" value="lower" {{if ne .Case "upper"}}checked{{end}} />
+            Only Lowercase
+        </label>
     </div>
 
-    <!--  Symbols checkbox  -->
-    {{if eq .Symbols "true"}}
-    <input id="symbols" name="symbols" type="checkbox" value="true" checked>
-    {{else}}
-    <input id="symbols" name="symbols" type="checkbox" value="true">
-    {{end}}
-    <label for="symbols">Include Symbols (!@#$%^&*)</label>
-
-    <!--  Words checkbox  -->
-    <div class="form-group">
-        {{if eq .Words "true"}}
-        <input id="words" name="words" type="checkbox" value="true" checked>
-        {{else}}
-        <input id="words" name="words" type="checkbox" value="true">
-        {{end}}
-        <label for="words">Include Words</label>
+    <!-- Symbols checkbox -->
+    <div class="form-group inline-group">
+        <label>
+            <input id="symbols" name="symbols" type="checkbox" value="true" {{if eq .Symbols "true"}}checked{{end}} />
+            Include Symbols (!@#$%^&*)
+        </label>
     </div>
+
+    <!-- Words checkbox -->
+    <div class="form-group inline-group">
+        <label>
+            <input id="words" name="words" type="checkbox" value="true" {{if eq .Words "true"}}checked{{end}} />
+            Include Words
+        </label>
+    </div>
+
 
     <button type="submit">Generate Password</button>
 </form>
