@@ -67,4 +67,4 @@ This document outlines the checkpoints for building a dynamic password generator
 - [X] Add uppercase/lowercase to the same line as the button
   - [X] Same with include symbols + words
 - [X] Remove "Letter Case: "
-- [ ] Button for "Include Mixed Case"
+- [X] Button for "Include Mixed Case"
