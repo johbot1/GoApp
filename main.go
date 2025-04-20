@@ -1,117 +1,156 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
+	"math/big"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
+	"unicode"
 )
 
 // Global state for the word list and error tracking
 var wordList []string
 var wordListLoaded bool
-var loadWordListMutex sync.Once // Ensures loadWordList is executed only once
-var wordListError string        // Stores error messages
+var loadWordListMutex sync.Once // Ensures loadWordList is executed once AND ONLY ONCE!
+var wordListError string        // Storing error messages
 
-// loadWordList reads a JSON file containing a list of words.
-// It populates the global wordList slice and is protected by sync.Once.
+// loadWordList reads a JSON file containing a map of words and extracts just the keys (the words).
+// This function is only called once, even if triggered multiple times (guarded by sync.Once).
 func loadWordList(filename string) error {
-	data, err := os.ReadFile(filename)
+	data, err := os.ReadFile(filename) // Read the file as a byte slice
 	if err != nil {
 		log.Printf("ERROR [loadWordList] Failed to read file '%s': %v", filename, err)
 		return fmt.Errorf("error reading word list file '%s': %w", filename, err)
 	}
-
+	//Unmarshal directly into the global wordList slice
 	err = json.Unmarshal(data, &wordList)
 	if err != nil {
 		log.Printf("ERROR [loadWordList] Failed to parse JSON array from '%s': %v", filename, err)
 		return fmt.Errorf("error unmarshalling word list from '%s': %w", filename, err)
 	}
 
+	// Check if the list is empty after successful unmarshalling
 	if len(wordList) == 0 {
-		wordListLoaded = false
+		wordListLoaded = false // Treat empty list as not successfully loaded for practical purposes
 		log.Printf("Warning: Word list '%s' loaded but is empty.", filename)
 		return fmt.Errorf("word list '%s' is empty", filename)
+	} else {
+		wordListLoaded = true
+		log.Printf("Word list '%s' loaded successfully with %d words.", filename, len(wordList))
 	}
-
-	wordListLoaded = true
-	log.Printf("Word list '%s' loaded successfully with %d words.", filename, len(wordList))
 	return nil
 }
 
-// main starts the web server and configures routes and static file serving
+// main starts the web server and handles static file routing
 func main() {
+	// Route for the homepage and password form passwordFormHandler
 	http.HandleFunc("/", passwordFormHandler)
+	log.Println("Listening on port 8080")
+
+	// Serve static assets (JS, CSS, etc.)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
-	log.Println("Listening on port 8080")
+	// Start the server on port 8080
 	log.Fatal(http.ListenAndServe(":8080", nil))
+
 }
 
-// passwordFormHandler parses form submissions, generates a password, and renders the template
+// passwordFormHandler parses form submissions and injects data into the template
 func passwordFormHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[passwordFormHandler] Request received: method=%s", r.Method)
-	defer func() { wordListError = "" }() // Clear global error state after each request
+	defer func() {
+		wordListError = "" // Clear after handling this request
+	}()
 
+	// Template data container
 	data := make(map[string]string)
 
 	if r.Method == http.MethodPost {
+		// Parse the form submission
 		err := r.ParseForm()
 		if err != nil {
 			http.Error(w, "Error parsing form", http.StatusBadRequest)
-			log.Println("ERROR [passwordFormHandler] Failed to parse form")
+			log.Println("ERROR [passwordFormHandler] Password generation failed or returned empty result")
 			return
 		}
 
-		// Extract form values
+		// Extract and parse user selections
 		lengthStr := r.FormValue("length")
 		symbols := r.FormValue("symbols") == "true"
 		words := r.FormValue("words") == "true"
-		casePref := r.FormValue("case")
+		casePref := r.FormValue("case") // "upper", "lower", or "mixed"
 
 		log.Printf("[passwordFormHandler] Form values - length=%s | case=%s | symbols=%t | words=%t",
-			lengthStr, casePref, symbols, words)
+			lengthStr, r.FormValue("case"), r.FormValue("symbols") == "true", r.FormValue("words") == "true")
 
-		// Convert length to integer
+		// Validate length
 		length, err := strconv.Atoi(lengthStr)
 		if err != nil || length <= 0 {
 			http.Error(w, "Invalid length", http.StatusBadRequest)
-			log.Println("ERROR [passwordFormHandler] Invalid length provided")
+			log.Println("ERROR [passwordFormHandler] Password generation failed or returned empty result")
 			return
 		}
 
-		// Generate the password using user preferences
+		// Generate the password and populate the template data
 		log.Println("[passwordFormHandler] Calling generatePassword with parsed options")
 		password := generatePassword(length, casePref, symbols, words)
+		if casePref == "upper" && !words {
+			password = strings.ToUpper(password)
+		} else if casePref == "mixed" && !words {
+			password = applyMixedCase(password)
+		}
 
 		data["Password"] = password
+		if password != "" {
+			log.Printf("[passwordFormHandler] Password generated successfully!")
+		} else {
+			log.Println("ERROR [passwordFormHandler] Password generation failed or returned empty result")
+		}
+
+		// Always pass the latest error (it may have changed in generatePassword)
 		data["WordListError"] = wordListError
 		data["Length"] = lengthStr
 		data["Case"] = casePref
 		data["Symbols"] = strconv.FormatBool(symbols)
 		data["Words"] = strconv.FormatBool(words)
-
-		if password != "" {
-			log.Println("[passwordFormHandler] Password generated successfully")
-		} else {
-			log.Println("ERROR [passwordFormHandler] Password generation failed or returned empty result")
-		}
 	} else {
-		// Handle initial page load (GET)
+		// On initial page load or GET, pass in error if one exists
 		data["WordListError"] = wordListError
 		data["Length"] = "8"
 		data["Case"] = "lower"
 	}
 
-	// Load and render HTML template
+	// Parse and render the HTML template
 	tmpl := template.Must(template.ParseFiles("templates/index.html"))
 	err := tmpl.Execute(w, data)
 	if err != nil {
 		http.Error(w, "Template execution error", http.StatusInternalServerError)
-		log.Println("ERROR [passwordFormHandler] Failed to execute template")
+		log.Println("ERROR [passwordFormHandler] Password generation failed or returned empty result")
+		return
 	}
+}
+
+func applyMixedCase(password string) string {
+	var result strings.Builder
+	for _, ch := range password {
+		// 50/50 chance
+		upper, err := rand.Int(rand.Reader, big.NewInt(2))
+		if err != nil {
+			result.WriteRune(ch) // fallback, don't alter
+			continue
+		}
+		if upper.Int64() == 1 {
+			result.WriteRune(unicode.ToUpper(ch))
+		} else {
+			result.WriteRune(unicode.ToLower(ch))
+		}
+	}
+	return result.String()
 }

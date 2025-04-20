@@ -5,7 +5,6 @@ import (
 	"log"
 	"math/big"
 	"strings"
-	"unicode"
 )
 
 const (
@@ -149,22 +148,4 @@ func findWordCombo(remaining int, path []int, result *[]string, lengthMap map[in
 		}
 	}
 	return false
-}
-
-// applyMixedCase randomly uppercases or lowercases each character in the password string
-func applyMixedCase(password string) string {
-	var result strings.Builder
-	for _, ch := range password {
-		upper, err := rand.Int(rand.Reader, big.NewInt(2))
-		if err != nil {
-			result.WriteRune(ch)
-			continue
-		}
-		if upper.Int64() == 1 {
-			result.WriteRune(unicode.ToUpper(ch))
-		} else {
-			result.WriteRune(unicode.ToLower(ch))
-		}
-	}
-	return result.String()
 }
