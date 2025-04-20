@@ -16,7 +16,7 @@ const (
 // generatePassword constructs a password of exact 'length'.
 // If includeWords is true, it assembles the password from whole words whose combined length matches the target.
 // Symbols are inserted at the beginning, middle, and end if enabled. Letter casing is applied after construction.
-func generatePassword(length int, includeUppercase bool, includeSymbols bool, includeWords bool) string {
+func generatePassword(length int, casePref string, includeSymbols bool, includeWords bool) string {
 	// Validate input bounds (had an issue with it flying out of bounds, so this will ensure it doesn't)
 	if length <= 7 || length > 64 {
 		log.Printf("[generatePassword]: Invalid password length: %d", length)
@@ -63,8 +63,26 @@ func generatePassword(length int, includeUppercase bool, includeSymbols bool, in
 			password := strings.Join(result, "")
 
 			// Apply casing if enabled
-			if includeUppercase {
+			if casePref == "upper" {
 				password = strings.ToUpper(password)
+			} else if casePref == "mixed" {
+				password = applyMixedCase(password)
+			}
+			// Apply symbols if enabled
+			if includeSymbols && len(password) >= 3 {
+				passwordRunes := []rune(password)
+
+				startIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbolChars))))
+				passwordRunes[0] = rune(symbolChars[startIdx.Int64()])
+
+				endIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbolChars))))
+				passwordRunes[len(passwordRunes)-1] = rune(symbolChars[endIdx.Int64()])
+
+				midPos := len(passwordRunes) / 2
+				midIdx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(symbolChars))))
+				passwordRunes[midPos] = rune(symbolChars[midIdx.Int64()])
+
+				password = string(passwordRunes)
 			}
 
 			// Insert symbols at the start, middle, and end if enabled and if the password has at least 3 characters
@@ -93,7 +111,7 @@ func generatePassword(length int, includeUppercase bool, includeSymbols bool, in
 
 	// Standard character-based password construction
 	chars := lowercaseChars
-	if includeUppercase {
+	if casePref == "upper" {
 		chars = uppercaseChars
 	}
 	if includeSymbols {
